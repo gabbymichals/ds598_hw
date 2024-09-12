@@ -1,0 +1,9 @@
+{
+	"name": "DS598GabbyM",
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4ee9cef5-129d-4c4d-b52b-6256ba8335b6",
+		"tenantId": "d57d32cc-c121-488f-b07b-dfe705680c71"
+	}
+}
