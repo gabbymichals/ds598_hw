@@ -22,8 +22,67 @@
 						"resource": "https://vault.azure.net"
 					}
 				}
+			},
+			{
+				"name": "ForEachWeather",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Web1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@range(0,pipeline().parameters.weeks)",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "weather_data",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
 			}
 		],
+		"parameters": {
+			"weeks": {
+				"type": "int",
+				"defaultValue": 52
+			}
+		},
 		"annotations": []
 	}
 }

@@ -1,0 +1,18 @@
+{
+	"name": "weather_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Open Weather Historical",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "data/2.5/history/city?lat=@{dataset().lat}&lon=@{data set().lon}&type=@{dataset().dataType}&start=@{dataset().start}&end=@{dataset().end}&appid=@{dataset().appi d}"
+			}
+		},
+		"schema": {}
+	}
+}
