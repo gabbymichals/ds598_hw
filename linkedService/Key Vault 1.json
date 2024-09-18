@@ -1,0 +1,10 @@
+{
+	"name": "Key Vault 1",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://weatherdataDS598.vault.azure.net/"
+		}
+	}
+}
