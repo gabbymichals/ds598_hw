@@ -115,7 +115,7 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"lat": 42.36,
-									"lon": 71.06,
+									"lon": -71.06,
 									"appid": "@activity('Web1').output.value"
 								}
 							}
@@ -178,12 +178,10 @@
 								]
 							}
 						],
-						"userProperties": [
-							{}
-						],
+						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@range(0, div(sub(ticks(pipeline().parameters.end), ticks(pipeline().parameters.start)), ticks('P7D')))",
+								"value": "@range(0,pipeline().parameters.weeks)",
 								"type": "Expression"
 							},
 							"activities": [
@@ -228,14 +226,14 @@
 											"parameters": {
 												"dataType": "hour",
 												"lat": 42.36,
-												"lon": 71.06,
+												"lon": -71.06,
 												"appid": "@activity('Web1').output.value",
 												"start": {
-													"value": "@div(sub(ticks('1970-01-01T00:00:00Z'), ticks(addDays(pipeline().parameters.start, mul(item(), 7)))), 10000000)",
+													"value": "@div(sub(ticks(addDays(utcNow(),mul(add(item(),1),-7))), ticks('1970-01-01T00:00:00Z')), 10000000)",
 													"type": "Expression"
 												},
 												"end": {
-													"value": "@div(sub(ticks('1970-01-01T00:00:00Z'), ticks(addDays(pipeline().parameters.start, add(mul(item(), 7), 6)))), 10000000)",
+													"value": "@div(sub(ticks(addDays(utcNow(), mul(item(),-7))), ticks('1970-01-01T00:00:00Z')), 10000000)",
 													"type": "Expression"
 												}
 											}
@@ -260,14 +258,6 @@
 					"weeks": {
 						"type": "int",
 						"defaultValue": 52
-					},
-					"start": {
-						"type": "string",
-						"defaultValue": "@addDays(utcnow(), -365)"
-					},
-					"end": {
-						"type": "string",
-						"defaultValue": "@addDays(utcnow(), -1)"
 					}
 				},
 				"annotations": []
@@ -293,7 +283,7 @@
 					},
 					"lon": {
 						"type": "float",
-						"defaultValue": 71.06
+						"defaultValue": -71.06
 					},
 					"appid": {
 						"type": "string",
@@ -337,7 +327,7 @@
 					},
 					"lon": {
 						"type": "float",
-						"defaultValue": 71.06
+						"defaultValue": -71.06
 					},
 					"appid": {
 						"type": "string",
@@ -367,6 +357,30 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/Open Weather Historical')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/weather_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Data Lake Weather",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Bronze",
+						"fileSystem": "weathercontainer"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
 			]
 		},
 		{
@@ -446,30 +460,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/weather_sink')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Data Lake Weather",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "Bronze",
-						"fileSystem": "weathercontainer"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
-			]
 		}
 	]
 }
