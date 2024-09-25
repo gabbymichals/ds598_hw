@@ -24,11 +24,11 @@
 			},
 			"start": {
 				"type": "string",
-				"defaultValue": "@item()"
+				"defaultValue": "@addDays(utcnow(), -365)"
 			},
 			"end": {
 				"type": "string",
-				"defaultValue": "@add(item(),604800)"
+				"defaultValue": "@addDays(utcnow(), -1)"
 			}
 		},
 		"annotations": [],
