@@ -34,10 +34,9 @@
 						]
 					}
 				],
-				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@range(0,pipeline().parameters.weeks)",
+						"value": "@range(0, div(sub(ticks(pipeline().parameters.end), ticks(pipeline().parameters.start)), ticks('P7D')))",
 						"type": "Expression"
 					},
 					"activities": [
@@ -75,8 +74,14 @@
 										"lat": 42.36,
 										"lon": 71.06,
 										"appid": "@activity('Web1').output.value",
-										"start": "@item()",
-										"end": "@add(item(),604800)"
+										"start": {
+											"value": "@div(sub(ticks('1970-01-01T00:00:00Z'), ticks(addDays(pipeline().parameters.start, mul(item(), 7)))), 10000000)",
+											"type": "Expression"
+										},
+										"end": {
+											"value": "@div(sub(ticks('1970-01-01T00:00:00Z'), ticks(addDays(pipeline().parameters.start, add(mul(item(), 7), 6)))), 10000000)",
+											"type": "Expression"
+										}
 									}
 								}
 							]
@@ -89,6 +94,14 @@
 			"weeks": {
 				"type": "int",
 				"defaultValue": 52
+			},
+			"start": {
+				"type": "string",
+				"defaultValue": "@addDays(utcnow(), -365)"
+			},
+			"end": {
+				"type": "string",
+				"defaultValue": "@addDays(utcnow(), -1)"
 			}
 		},
 		"annotations": []
