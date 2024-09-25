@@ -7,12 +7,12 @@
 		},
 		"parameters": {
 			"lat": {
-				"type": "int",
-				"defaultValue": "42.36"
+				"type": "float",
+				"defaultValue": 42.36
 			},
 			"lon": {
-				"type": "int",
-				"defaultValue": "71.06"
+				"type": "float",
+				"defaultValue": 71.06
 			},
 			"appid": {
 				"type": "string",
@@ -25,7 +25,7 @@
 			"location": {
 				"type": "HttpServerLocation",
 				"relativeUrl": {
-					"value": "data/2.5/air_pollution/forecast?lat=@{dataset().lat}&lon=@{dataset().lon}&appid=@{dataset().appid}",
+					"value": "data/2.5/air_pollution/forecast?lat=@{dataset().lat}&lon=@{dataset().lon}&appid=@{dataset().appid}\n\n",
 					"type": "Expression"
 				}
 			}
