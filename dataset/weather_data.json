@@ -5,12 +5,41 @@
 			"referenceName": "Open Weather Historical",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"dataType": {
+				"type": "string",
+				"defaultValue": "hour"
+			},
+			"lat": {
+				"type": "float",
+				"defaultValue": 42.36
+			},
+			"lon": {
+				"type": "float",
+				"defaultValue": 71.06
+			},
+			"appid": {
+				"type": "string",
+				"defaultValue": "“@activity('Web1').output.value"
+			},
+			"start": {
+				"type": "string",
+				"defaultValue": "@item()"
+			},
+			"end": {
+				"type": "string",
+				"defaultValue": "@add(item(),604800)"
+			}
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": "data/2.5/history/city?lat=@{dataset().lat}&lon=@{data set().lon}&type=@{dataset().dataType}&start=@{dataset().start}&end=@{dataset().end}&appid=@{dataset().appi d}"
+				"relativeUrl": {
+					"value": "data/2.5/history/city?lat=@{dataset().lat}&lon=@{dataset().lon}&type=@{dataset().dataType}&start=@{dataset().start}&end=@{dataset().end}&appid=@{dataset().appid}",
+					"type": "Expression"
+				}
 			}
 		},
 		"schema": {}

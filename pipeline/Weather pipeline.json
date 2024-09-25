@@ -24,7 +24,7 @@
 				}
 			},
 			{
-				"name": "ForEachWeather",
+				"name": "ForEach",
 				"type": "ForEach",
 				"dependsOn": [
 					{
