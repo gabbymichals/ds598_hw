@@ -20,7 +20,7 @@
 			},
 			"appid": {
 				"type": "string",
-				"defaultValue": "“@activity('Web1').output.value"
+				"defaultValue": "@activity('Web1').output.value"
 			},
 			"start": {
 				"type": "string",
