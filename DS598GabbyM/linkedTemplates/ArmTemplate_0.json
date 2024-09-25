@@ -139,6 +139,14 @@
 					"appid": {
 						"type": "string",
 						"defaultValue": "@activity('Web1').output.value"
+					},
+					"start": {
+						"type": "string",
+						"defaultValue": "1695313134"
+					},
+					"end": {
+						"type": "string",
+						"defaultValue": "1726935534"
 					}
 				},
 				"annotations": [],
@@ -147,7 +155,7 @@
 					"location": {
 						"type": "HttpServerLocation",
 						"relativeUrl": {
-							"value": "data/2.5/air_pollution/forecast?lat=@{dataset().lat}&lon=@{dataset().lon}&appid=@{dataset().appid}\n\n",
+							"value": "data/2.5/air_pollution/forecast?lat=@{dataset().lat}&lon=@{dataset().lon}&start=@{dataset().start}&end=@{dataset().end}&appid=@{dataset().appid}\n\n",
 							"type": "Expression"
 						}
 					}
