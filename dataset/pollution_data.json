@@ -1,0 +1,32 @@
+{
+	"name": "pollution_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Historical Weather Pollution",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"lat": {
+				"type": "int",
+				"defaultValue": "42.36"
+			},
+			"lon": {
+				"type": "int",
+				"defaultValue": "71.06"
+			},
+			"appid": {
+				"type": "string",
+				"defaultValue": "“@activity('Web1').output.value"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "data/2.5/air_pollution/forecast?lat={lat}&lon={lon}&appid={API key}"
+			}
+		},
+		"schema": {}
+	}
+}
