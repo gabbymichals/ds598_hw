@@ -16,7 +16,7 @@
 			},
 			"lon": {
 				"type": "float",
-				"defaultValue": 71.06
+				"defaultValue": -71.06
 			},
 			"appid": {
 				"type": "string",
