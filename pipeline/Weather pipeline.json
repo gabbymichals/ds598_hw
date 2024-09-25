@@ -81,7 +81,7 @@
 									"parameters": {
 										"dataType": "hour",
 										"lat": 42.36,
-										"lon": 71.06,
+										"lon": -71.06,
 										"appid": "@activity('Web1').output.value",
 										"start": {
 											"value": "@div(sub(ticks('1970-01-01T00:00:00Z'), ticks(addDays(pipeline().parameters.start, mul(item(), 7)))), 10000000)",
