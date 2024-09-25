@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "DS598GabbyM"
+		},
+		"Data Lake Weather_accountKey": {
+			"value": ""
+		},
+		"GitHub_DS598_credential": {
+			"value": ""
+		},
+		"Data Lake Weather_properties_typeProperties_url": {
+			"value": "https://ds598storagegabbym.dfs.core.windows.net/"
+		},
+		"GitHub_DS598_properties_typeProperties_username": {
+			"value": "gabbymichals"
+		},
+		"Historical Weather Pollution_properties_typeProperties_url": {
+			"value": "http://api.openweathermap.org/"
+		},
+		"Key Vault 1_properties_typeProperties_baseUrl": {
+			"value": "https://weatherdataDS598.vault.azure.net/"
+		},
+		"Open Weather Historical_properties_typeProperties_url": {
+			"value": "https://history.openweathermap.org/"
+		}
+	}
+}
