@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"method": "GET",
-					"url": "https://weatherdataDS598/secrets/OpenWeatherAPIKey? api-version=7.0",
+					"url": "https://weatherdatads598.vault.azure.net/secrets/ds598weatherkey1?api-version=7.0",
 					"authentication": {
 						"type": "MSI",
 						"resource": "https://vault.azure.net"
@@ -69,7 +69,15 @@
 							"inputs": [
 								{
 									"referenceName": "weather_data",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"dataType": "hour",
+										"lat": 42.36,
+										"lon": 71.06,
+										"appid": "@activity('Web1').output.value",
+										"start": "@item()",
+										"end": "@add(item(),604800)"
+									}
 								}
 							]
 						}
