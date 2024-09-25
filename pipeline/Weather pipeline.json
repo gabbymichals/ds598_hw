@@ -36,7 +36,7 @@
 				],
 				"typeProperties": {
 					"items": {
-						"value": "@range(0, div(sub(ticks(pipeline().parameters.end), ticks(pipeline().parameters.start)), ticks('P7D')))",
+						"value": "@range(0,pipeline().parameters.weeks)",
 						"type": "Expression"
 					},
 					"activities": [
@@ -106,13 +106,9 @@
 			}
 		],
 		"parameters": {
-			"start": {
-				"type": "string",
-				"defaultValue": "@addDays(utcnow(), -365)"
-			},
-			"end": {
-				"type": "string",
-				"defaultValue": "@addDays(utcnow(), -1)"
+			"weeks": {
+				"type": "int",
+				"defaultValue": 52
 			}
 		},
 		"annotations": []
