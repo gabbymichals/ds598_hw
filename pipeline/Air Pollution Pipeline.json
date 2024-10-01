@@ -82,7 +82,8 @@
 							"appid": {
 								"value": "@activity('Web1').output.value",
 								"type": "Expression"
-							}
+							},
+							"datatype": "'hour'"
 						}
 					}
 				],
