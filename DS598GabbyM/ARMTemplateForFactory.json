@@ -130,7 +130,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "weather_sink",
+								"referenceName": "pollution",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -144,7 +144,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/pollution_data')]",
-				"[concat(variables('factoryId'), '/datasets/weather_sink')]"
+				"[concat(variables('factoryId'), '/datasets/pollution')]"
 			]
 		},
 		{
@@ -476,6 +476,30 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pollution')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Data Lake Weather",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Bronze-Weather",
+						"fileSystem": "weathercontainer"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
+			]
 		}
 	]
 }
