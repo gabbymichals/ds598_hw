@@ -72,7 +72,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "pollution",
+						"referenceName": "pollution_sink",
 						"type": "DatasetReference"
 					}
 				]
