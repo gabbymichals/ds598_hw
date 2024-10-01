@@ -85,7 +85,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "weather_sink",
+						"referenceName": "pollution",
 						"type": "DatasetReference"
 					}
 				]
