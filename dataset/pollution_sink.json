@@ -1,5 +1,5 @@
 {
-	"name": "pollution",
+	"name": "pollution_sink",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Data Lake Weather",
