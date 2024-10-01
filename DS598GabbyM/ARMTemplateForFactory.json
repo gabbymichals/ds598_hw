@@ -114,23 +114,27 @@
 								"referenceName": "pollution_data",
 								"type": "DatasetReference",
 								"parameters": {
-									"lat": 42.36,
-									"lon": -71.06,
-									"appid": "@activity('Web1').output.value",
+									"lat": 42.361145,
+									"lon": -71.057083,
 									"start": {
-										"value": "@div(sub(ticks(addDays(utcNow(),-365)), ticks('1970-01-01T00:00:00Z')), 10000000)",
+										"value": "@div(sub(ticks(addDays(utcNow(), -365)), ticks('1970-01-01T00:00:00Z')), 10000000)",
 										"type": "Expression"
 									},
 									"end": {
-										"value": "@div(sub(ticks(utcNow()), ticks('1970-01-1T00:00:00Z')), 10000000)",
+										"value": "@div(sub(ticks(utcNow()), ticks('1970-01-01T00:00:00Z')),10000000)",
 										"type": "Expression"
-									}
+									},
+									"appid": {
+										"value": "@activity('Web1').output.value",
+										"type": "Expression"
+									},
+									"datatype": "'hour'"
 								}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "pollution",
+								"referenceName": "pollution_sink",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -144,7 +148,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/pollution_data')]",
-				"[concat(variables('factoryId'), '/datasets/pollution')]"
+				"[concat(variables('factoryId'), '/datasets/pollution_sink')]"
 			]
 		},
 		{
@@ -287,23 +291,24 @@
 				"parameters": {
 					"lat": {
 						"type": "float",
-						"defaultValue": 42.36
+						"defaultValue": 42.361145
 					},
 					"lon": {
 						"type": "float",
-						"defaultValue": -71.06
-					},
-					"appid": {
-						"type": "string",
-						"defaultValue": "@activity('Web1').output.value"
+						"defaultValue": -71.057083
 					},
 					"start": {
-						"type": "string",
-						"defaultValue": "1695313134"
+						"type": "string"
 					},
 					"end": {
+						"type": "string"
+					},
+					"appid": {
+						"type": "string"
+					},
+					"datatype": {
 						"type": "string",
-						"defaultValue": "1726935534"
+						"defaultValue": "'hour'"
 					}
 				},
 				"annotations": [],
@@ -312,7 +317,7 @@
 					"location": {
 						"type": "HttpServerLocation",
 						"relativeUrl": {
-							"value": "data/2.5/air_pollution/forecast?lat=@{dataset().lat}&lon=@{dataset().lon}&start=@{dataset().start}&end=@{dataset().end}&appid=@{dataset().appid}\n\n",
+							"value": "data/2.5/air_pollution/history?lat=@{dataset().lat}&lon=@{dataset().lon}&start=@{dataset().start}&end=@{dataset().end}&appid=@{dataset().appid}\n\n",
 							"type": "Expression"
 						}
 					}
@@ -321,6 +326,30 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/Historical Weather Pollution')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pollution_sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Data Lake Weather",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Bronze-Weather",
+						"fileSystem": "weathercontainer"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
 			]
 		},
 		{
@@ -476,30 +505,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pollution')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Data Lake Weather",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "Bronze-Weather",
-						"fileSystem": "weathercontainer"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
-			]
 		}
 	]
 }
