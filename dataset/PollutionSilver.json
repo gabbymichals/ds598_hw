@@ -1,0 +1,20 @@
+{
+	"name": "PollutionSilver",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Data Lake Weather",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Silver",
+				"fileSystem": "weathercontainer"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
