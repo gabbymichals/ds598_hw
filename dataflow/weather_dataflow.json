@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "Parquet1",
+						"referenceName": "WeatherSilver",
 						"type": "DatasetReference"
 					},
 					"name": "SilverWeatherSink"
@@ -80,10 +80,8 @@
 				"     skipDuplicateMapOutputs: false) ~> flatten1",
 				"flatten1 derive(corrected_timestamp = iif(length(toString(timestamp)) == 10, toInteger(timestamp), toInteger(null())),",
 				"          location = \"Boston\") ~> derivedColumn1",
-				"derivedColumn1 filter(!isNull(temp) && !isNull(humidity) && !isNull(corrected_timestamp)\r",
-				") ~> filter1",
-				"filter1 derive(date_time = iif(!isNull(corrected_timestamp), toTimestamp(toLong(corrected_timestamp) * 1000), toTimestamp(null()))\r",
-				",",
+				"derivedColumn1 filter(!isNull(temp) && !isNull(humidity) && !isNull(corrected_timestamp)) ~> filter1",
+				"filter1 derive(date_time = iif(!isNull(corrected_timestamp), toTimestamp(toLong(corrected_timestamp) * 1000), toTimestamp(null())),",
 				"          id = concat(location, '_', toString(corrected_timestamp)),",
 				"          temp_C = round(toFloat(temp) - 273.15, 2),",
 				"          temp_min_C = round(toFloat(temp_min) - 273.15, 2),",
@@ -93,8 +91,7 @@
 				"          temp_max_F = round((toFloat(temp_max) * 9 / 5) + 32, 2),",
 				"          lon = -71.0589,",
 				"          lat = 42.3601,",
-				"          weather_id_value = toInteger(trim(split(toString(weather_id), ': ')[1]))\r",
-				",",
+				"          weather_id_value = toInteger(trim(split(toString(weather_id), ': ')[1])),",
 				"          weather_main_value = trim(split(toString(weather_main), ': ')[1]),",
 				"          {weather_description value} = trim(split(toString(weather_description), ': ')[1]),",
 				"          weather_icon_value = trim(split(toString(weather_icon), ': ')[1]),",
