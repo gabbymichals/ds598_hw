@@ -1,0 +1,48 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "weather_sink",
+						"type": "DatasetReference"
+					},
+					"name": "weather"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "flatten1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          calctime as double,",
+				"          city_id as boolean,",
+				"          cnt as short,",
+				"          cod as short,",
+				"          list as (clouds as (all as short), dt as integer, main as (feels_like as double, humidity as short, pressure as short, temp as double, temp_max as double, temp_min as double), rain as ({1h} as double), snow as ({1h} as double), weather as (description as string, icon as string, id as short, main as string)[], wind as (deg as short, gust as double, speed as double))[],",
+				"          message as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'singleDocument') ~> weather",
+				"weather foldDown(unroll(),",
+				"     mapColumn(",
+				"          calctime,",
+				"          city_id,",
+				"          cnt,",
+				"          cod,",
+				"          list,",
+				"          message",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1"
+			]
+		}
+	}
+}
