@@ -10,7 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "Bronze-Weather",
+				"fileName": "historyd527edc3c5673bccd1920dd5b6189bbd317ba173555b8627c5f12c5bc9de97e3",
+				"folderPath": "Bronze-Weather/data/2.5/air_pollution",
 				"fileSystem": "weathercontainer"
 			}
 		},
