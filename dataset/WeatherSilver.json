@@ -1,5 +1,5 @@
 {
-	"name": "Parquet1",
+	"name": "WeatherSilver",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Data Lake Weather",
