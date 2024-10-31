@@ -1,0 +1,107 @@
+{
+	"name": "pollution_dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "pollution_sink",
+						"type": "DatasetReference"
+					},
+					"name": "PollutionSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "PollutionSilver",
+						"type": "DatasetReference"
+					},
+					"name": "SilverPollution"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flatten1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          coord as (lat as double, lon as double),",
+				"          list as (components as (co as double, nh3 as double, no as double, no2 as double, o3 as double, pm10 as double, pm2_5 as double, so2 as double), dt as integer, main as (aqi as short))[]",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> PollutionSource",
+				"PollutionSource foldDown(unroll(list),",
+				"     mapColumn(",
+				"          lat = coord.lat,",
+				"          lon = coord.lon,",
+				"          co = list.components.co,",
+				"          nh3 = list.components.nh3,",
+				"          no = list.components.no,",
+				"          o3 = list.components.o3,",
+				"          pm10 = list.components.pm10,",
+				"          pm2_5 = list.components.pm2_5,",
+				"          so2 = list.components.so2,",
+				"          timestamp = list.dt,",
+				"          aqi = list.main.aqi",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1",
+				"flatten1 derive(corrected_timestamp = iif(length(toString(timestamp)) == 10, toInteger(timestamp), toInteger(null())),",
+				"          location = \"Boston\") ~> derivedColumn1",
+				"derivedColumn1 filter(!isNull(aqi) && !isNull(corrected_timestamp)) ~> filter1",
+				"filter1 derive(date_time = iif(!isNull(corrected_timestamp), toTimestamp(toLong(corrected_timestamp) * 1000), toTimestamp(null())),",
+				"          id = concat(location, '_', toString(corrected_timestamp)),",
+				"          co = round(toFloat(co),2),",
+				"          nh3 = round(toFloat(nh3),2),",
+				"          no = round(toFloat(no),2),",
+				"          o3 = round(toFloat(o3),2),",
+				"          pm10 = round(toFloat(pm10),2),",
+				"          pm2_5 = round(toFloat(pm2_5),2),",
+				"          so2 = round(toFloat(so2),2)) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          lat,",
+				"          lon,",
+				"          co,",
+				"          nh3,",
+				"          no,",
+				"          o3,",
+				"          pm10,",
+				"          pm2_5,",
+				"          so2,",
+				"          aqi,",
+				"          corrected_timestamp,",
+				"          location,",
+				"          date_time,",
+				"          id",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SilverPollution"
+			]
+		}
+	}
+}
