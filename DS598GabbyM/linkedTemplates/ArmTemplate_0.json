@@ -119,6 +119,56 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/PollutionSilver')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Data Lake Weather",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Silver",
+						"fileSystem": "weathercontainer"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WeatherSilver')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Data Lake Weather",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Silver",
+						"fileSystem": "weathercontainer"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pollution_data')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -263,56 +313,6 @@
 					}
 				},
 				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/WeatherSilver')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Data Lake Weather",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "Silver",
-						"fileSystem": "weathercontainer"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PollutionSilver')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Data Lake Weather",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "Silver",
-						"fileSystem": "weathercontainer"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/Data Lake Weather')]"
@@ -558,6 +558,121 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pollution_dataflow')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "pollution_sink",
+								"type": "DatasetReference"
+							},
+							"name": "PollutionSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "PollutionSilver",
+								"type": "DatasetReference"
+							},
+							"name": "SilverPollution"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "filter1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          coord as (lat as double, lon as double),",
+						"          list as (components as (co as double, nh3 as double, no as double, no2 as double, o3 as double, pm10 as double, pm2_5 as double, so2 as double), dt as integer, main as (aqi as short))[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine') ~> PollutionSource",
+						"PollutionSource foldDown(unroll(list),",
+						"     mapColumn(",
+						"          lat = coord.lat,",
+						"          lon = coord.lon,",
+						"          co = list.components.co,",
+						"          nh3 = list.components.nh3,",
+						"          no = list.components.no,",
+						"          o3 = list.components.o3,",
+						"          pm10 = list.components.pm10,",
+						"          pm2_5 = list.components.pm2_5,",
+						"          so2 = list.components.so2,",
+						"          timestamp = list.dt,",
+						"          aqi = list.main.aqi",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"flatten1 derive(corrected_timestamp = iif(length(toString(timestamp)) == 10, toInteger(timestamp), toInteger(null())),",
+						"          location = \"Boston\") ~> derivedColumn1",
+						"derivedColumn1 filter(!isNull(aqi) && !isNull(corrected_timestamp)) ~> filter1",
+						"filter1 derive(date_time = iif(!isNull(corrected_timestamp), toTimestamp(toLong(corrected_timestamp) * 1000), toTimestamp(null())),",
+						"          id = concat(location, '_', toString(corrected_timestamp)),",
+						"          co = round(toFloat(co),2),",
+						"          nh3 = round(toFloat(nh3),2),",
+						"          no = round(toFloat(no),2),",
+						"          o3 = round(toFloat(o3),2),",
+						"          pm10 = round(toFloat(pm10),2),",
+						"          pm2_5 = round(toFloat(pm2_5),2),",
+						"          so2 = round(toFloat(so2),2)) ~> derivedColumn2",
+						"derivedColumn2 select(mapColumn(",
+						"          lat,",
+						"          lon,",
+						"          co,",
+						"          nh3,",
+						"          no,",
+						"          o3,",
+						"          pm10,",
+						"          pm2_5,",
+						"          so2,",
+						"          aqi,",
+						"          corrected_timestamp,",
+						"          location,",
+						"          date_time,",
+						"          id",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     partitionFileNames:['silver_airpollution_historical'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> SilverPollution"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/pollution_sink')]",
+				"[concat(variables('factoryId'), '/datasets/PollutionSilver')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/weather_dataflow')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -693,176 +808,19 @@
 						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
+						"     partitionFileNames:['silver_weather_historical'],",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SilverWeatherSink"
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> SilverWeatherSink"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/weather_sink')]",
 				"[concat(variables('factoryId'), '/datasets/WeatherSilver')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pollution_dataflow')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "pollution_sink",
-								"type": "DatasetReference"
-							},
-							"name": "PollutionSource"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "PollutionSilver",
-								"type": "DatasetReference"
-							},
-							"name": "SilverPollution"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flatten1"
-						},
-						{
-							"name": "derivedColumn1"
-						},
-						{
-							"name": "filter1"
-						},
-						{
-							"name": "derivedColumn2"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          coord as (lat as double, lon as double),",
-						"          list as (components as (co as double, nh3 as double, no as double, no2 as double, o3 as double, pm10 as double, pm2_5 as double, so2 as double), dt as integer, main as (aqi as short))[]",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> PollutionSource",
-						"PollutionSource foldDown(unroll(list),",
-						"     mapColumn(",
-						"          lat = coord.lat,",
-						"          lon = coord.lon,",
-						"          co = list.components.co,",
-						"          nh3 = list.components.nh3,",
-						"          no = list.components.no,",
-						"          o3 = list.components.o3,",
-						"          pm10 = list.components.pm10,",
-						"          pm2_5 = list.components.pm2_5,",
-						"          so2 = list.components.so2,",
-						"          timestamp = list.dt,",
-						"          aqi = list.main.aqi",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flatten1",
-						"flatten1 derive(corrected_timestamp = iif(length(toString(timestamp)) == 10, toInteger(timestamp), toInteger(null())),",
-						"          location = \"Boston\") ~> derivedColumn1",
-						"derivedColumn1 filter(!isNull(aqi) && !isNull(corrected_timestamp)) ~> filter1",
-						"filter1 derive(date_time = iif(!isNull(corrected_timestamp), toTimestamp(toLong(corrected_timestamp) * 1000), toTimestamp(null())),",
-						"          id = concat(location, '_', toString(corrected_timestamp)),",
-						"          co = round(toFloat(co),2),",
-						"          nh3 = round(toFloat(nh3),2),",
-						"          no = round(toFloat(no),2),",
-						"          o3 = round(toFloat(o3),2),",
-						"          pm10 = round(toFloat(pm10),2),",
-						"          pm2_5 = round(toFloat(pm2_5),2),",
-						"          so2 = round(toFloat(so2),2)) ~> derivedColumn2",
-						"derivedColumn2 select(mapColumn(",
-						"          lat,",
-						"          lon,",
-						"          co,",
-						"          nh3,",
-						"          no,",
-						"          o3,",
-						"          pm10,",
-						"          pm2_5,",
-						"          so2,",
-						"          aqi,",
-						"          corrected_timestamp,",
-						"          location,",
-						"          date_time,",
-						"          id",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'parquet',",
-						"     umask: 0022,",
-						"     preCommands: [],",
-						"     postCommands: [],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> SilverPollution"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/pollution_sink')]",
-				"[concat(variables('factoryId'), '/datasets/PollutionSilver')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/preprocess_bronze_weather')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "weather_dataflow",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "weather_dataflow",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"weather": {},
-									"SilverWeatherSink": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/weather_dataflow')]"
 			]
 		},
 		{
@@ -909,6 +867,52 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/pollution_dataflow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/preprocess_bronze_weather')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "weather_dataflow",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "weather_dataflow",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"weather": {},
+									"SilverWeatherSink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/weather_dataflow')]"
 			]
 		}
 	]
