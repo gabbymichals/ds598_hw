@@ -96,11 +96,13 @@
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
+				"     partitionFileNames:['silver_airpollution_historical'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SilverPollution"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> SilverPollution"
 			]
 		}
 	}
